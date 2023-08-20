@@ -53,10 +53,12 @@ public class Clubgoer extends Thread {
 
 	//check to see if user pressed pause button
 	private void checkPause() {
+		// TODO
 		// THIS DOES NOTHING - MUST BE FIXED  	
         
     }
 	private void startSim() {
+		// TODO
 		// THIS DOES NOTHING - MUST BE FIXED  	
         
     }
