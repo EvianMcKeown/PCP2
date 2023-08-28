@@ -6,13 +6,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
- This is the basic ClubGoer Thread class, representing the patrons at the club
- */
+This is the basic ClubGoer Thread class, representing the patrons at the club
+*/
 
 public class Clubgoer extends Thread {
 	
 	public static ClubGrid club; //shared club
-
+	
 	GridBlock currentBlock;
 	private Random rand;
 	private int movingSpeed;
@@ -23,7 +23,7 @@ public class Clubgoer extends Thread {
 	private boolean wantToLeave;
 	
 	private int ID; //thread ID 
-
+	
 	
 	Clubgoer( int ID,  PeopleLocation loc,  int speed) {
 		this.ID=ID;
@@ -48,29 +48,40 @@ public class Clubgoer extends Thread {
 	
 	//getter
 	public   int getSpeed() { return movingSpeed; }
-
+	
 	//setter
-
+	public	void setSpeed(int iSpeed) { this.movingSpeed = iSpeed; }
+	
 	//check to see if user pressed pause button
 	private void checkPause() {
 		// TODO
+		synchronized (ClubSimulation.pause) {
+			
+			while (ClubSimulation.pause.get()) {
+				// does not execute if not paused
+				try {
+					ClubSimulation.pause.wait();
+					// no timeout
+				} catch (Exception e) {	}
+			}
+		}
 		// THIS DOES NOTHING - MUST BE FIXED  	
-        
-    }
+		
+	}
 	private void startSim() {
 		// TODO
 		// THIS DOES NOTHING - MUST BE FIXED  	
-        
-    }
+		
+	}
 	
 	//get drink at bar
-		private void getDrink() throws InterruptedException {
-			//FIX SO BARMAN GIVES THE DRINK AND IT IS NOT AUTOMATIC
-			thirsty=false;
-			System.out.println("Thread "+this.ID + " got drink at bar position: " + currentBlock.getX()  + " " +currentBlock.getY() );
-			sleep(movingSpeed*5);  //wait a bit
-		}
-		
+	private void getDrink() throws InterruptedException {
+		//FIX SO BARMAN GIVES THE DRINK AND IT IS NOT AUTOMATIC
+		thirsty=false;
+		System.out.println("Thread "+this.ID + " got drink at bar position: " + currentBlock.getX()  + " " +currentBlock.getY() );
+		sleep(movingSpeed*5);  //wait a bit
+	}
+	
 	//--------------------------------------------------------
 	//DO NOT CHANGE THE CODE BELOW HERE - it is not necessary
 	//clubgoer enters club
@@ -105,29 +116,29 @@ public class Clubgoer extends Thread {
 	//dancing in the club
 	private void dance() throws InterruptedException {		
 		for(int i=0;i<3;i++) { //sequence of 3
-
+			
 			int x_mv= rand.nextInt(3)-1; //-1,0 or 1
 			int y_mv=Integer.signum(1-x_mv);
 			
 			for(int j=0;j<4;j++) { //do four fast dance steps
-					currentBlock=club.move(currentBlock,x_mv,y_mv, myLocation);	
-					sleep(movingSpeed/5); 
-					x_mv*=-1;
-					y_mv*=-1;
+				currentBlock=club.move(currentBlock,x_mv,y_mv, myLocation);	
+				sleep(movingSpeed/5); 
+				x_mv*=-1;
+				y_mv*=-1;
 			}
 			checkPause();
 		}
 	}
 	
 	//wandering about  in the club
-		private void wander() throws InterruptedException {		
-			for(int i=0;i<2;i++) { ////wander for two steps
-				int x_mv= rand.nextInt(3)-1; //-1,0 or 1
-				int y_mv= Integer.signum(-rand.nextInt(4)+1); //-1,0 or 1  (more likely to head away from bar)
-				currentBlock=club.move(currentBlock,x_mv,y_mv, myLocation);	
-				sleep(movingSpeed); 
-			}
+	private void wander() throws InterruptedException {		
+		for(int i=0;i<2;i++) { ////wander for two steps
+			int x_mv= rand.nextInt(3)-1; //-1,0 or 1
+			int y_mv= Integer.signum(-rand.nextInt(4)+1); //-1,0 or 1  (more likely to head away from bar)
+			currentBlock=club.move(currentBlock,x_mv,y_mv, myLocation);	
+			sleep(movingSpeed); 
 		}
+	}
 	//leave club
 	private void leave() throws InterruptedException {
 		club.leaveClub(currentBlock,myLocation);		
@@ -144,14 +155,14 @@ public class Clubgoer extends Thread {
 			System.out.println("Thread "+ this.ID + " arrived at club"); //output for checking
 			checkPause(); //check whether have been asked to pause
 			enterClub();
-		
+			
 			while (inRoom) {	
 				checkPause(); //check every step
 				if((!thirsty)&&(!wantToLeave)) {
 					if (rand.nextInt(100) >95) 
-						thirsty = true; //thirsty every now and then
+					thirsty = true; //thirsty every now and then
 					else if (rand.nextInt(100) >98) 
-						wantToLeave=true; //at some point want to leave
+					wantToLeave=true; //at some point want to leave
 				}
 				
 				if (wantToLeave) {	 //leaving overides thirsty	
@@ -181,13 +192,13 @@ public class Clubgoer extends Thread {
 						dance();
 						System.out.println("Thread "+this.ID + " dancing " );
 					}
-				wander();
-				System.out.println("Thread "+this.ID + " wandering about " );
+					wander();
+					System.out.println("Thread "+this.ID + " wandering about " );
 				}
 				
 			}
 			System.out.println("Thread "+this.ID + " is done");
-
+			
 		} catch (InterruptedException e1) {  //do nothing
 		}
 	}

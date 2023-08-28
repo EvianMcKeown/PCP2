@@ -33,6 +33,7 @@ public class ClubSimulation {
 	private static int minWait=500; //for the fastest cutomer
 	
 	private static CountDownLatch latch;
+	public static AtomicBoolean pause;
 	
 	public static void setupGUI(int frameX,int frameY,int [] exits) {
 		// Frame initialize and dimensions
@@ -77,12 +78,19 @@ public class ClubSimulation {
 		});
 		
 		final JButton pauseB = new JButton("Pause ");;
-		
+
 		// add the listener to the jbutton to handle the "pressed" event
 		pauseB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				latch.countDown();
-				// free latch 	
+				synchronized (pause) {
+					pause.set(!pause.get());
+					// invert pause state
+					
+					if (pause.get() == false) {
+						pause.notifyAll();
+						// wakes all threads if not paused
+					}
+				}
 			}
 		});
 		
@@ -109,6 +117,10 @@ public class ClubSimulation {
 	
 	
 	public static void main(String[] args) throws InterruptedException {
+		// init count down latch 
+		latch = new CountDownLatch(1);
+		// set pause to false
+		pause = new AtomicBoolean(false);
 		
 		//deal with command line arguments if provided
 		if (args.length==4) {
@@ -136,10 +148,6 @@ public class ClubSimulation {
 			patrons[i] = new Clubgoer(i,peopleLocations[i],movingSpeed);
 		}
 		
-		// init count down latch 
-		latch = new CountDownLatch(1);
-		
-		
 		setupGUI(frameX, frameY,exit);  //Start Panel thread - for drawing animation
 		//start all the threads
 		Thread t = new Thread(clubView); 
@@ -148,9 +156,7 @@ public class ClubSimulation {
 		Thread s = new Thread(counterDisplay);  
 		s.start();
 		
-		for (int i=0;i<noClubgoers;i++) {
-			patrons[i].start();
-			
+		for (int i=0;i<noClubgoers;i++) {			
 			try {
 				latch.await();
 			} catch (Exception e) {
