@@ -29,7 +29,7 @@ public class ClubGrid {
 		counter=c;
 	}
 	
-	//initialise the grsi, creating all the GridBlocks
+	//initialise the grid, creating all the GridBlocks
 	private  void initGrid(int []exitBlocks) throws InterruptedException {
 		for (int i=0;i<x;i++) {
 			for (int j=0;j<y;j++) {
@@ -76,6 +76,7 @@ public class ClubGrid {
 		synchronized (entrance) {
 			while (entrance.occupied() || counter.overCapacity()) {
 				entrance.wait();
+				// wait until notify.all
 			}
 		}
 		
@@ -115,12 +116,12 @@ public class ClubGrid {
 	
 	
 	public  void leaveClub(GridBlock currentBlock,PeopleLocation myLocation)   {
-		synchronized (exit) {
+		synchronized (entrance) {
 			currentBlock.release();
 			counter.personLeft(); //add to counter
 			myLocation.setInRoom(false);
-			exit.notifyAll();
-			// fixed entrance to exit
+			entrance.notifyAll();
+			// notifies entrance to allow a person in (not waiting anymore)	
 		}
 	}
 	

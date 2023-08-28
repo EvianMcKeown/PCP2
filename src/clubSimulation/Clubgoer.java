@@ -54,9 +54,7 @@ public class Clubgoer extends Thread {
 	
 	//check to see if user pressed pause button
 	private void checkPause() {
-		// TODO
 		synchronized (ClubSimulation.pause) {
-			
 			while (ClubSimulation.pause.get()) {
 				// does not execute if not paused
 				try {
@@ -65,12 +63,12 @@ public class Clubgoer extends Thread {
 				} catch (Exception e) {	}
 			}
 		}
-		// THIS DOES NOTHING - MUST BE FIXED  	
-		
 	}
 	private void startSim() {
-		// TODO
-		// THIS DOES NOTHING - MUST BE FIXED  	
+		synchronized (ClubSimulation.pause) {
+			ClubSimulation.pause.set(false);
+		}
+		// makes sure that sim is not paused  	
 		
 	}
 	
