@@ -69,7 +69,6 @@ public class Clubgoer extends Thread {
 			ClubSimulation.pause.set(false);
 		}
 		// makes sure that sim is not paused  	
-		
 	}
 	
 	//get drink at bar
