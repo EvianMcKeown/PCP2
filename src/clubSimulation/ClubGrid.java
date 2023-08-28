@@ -72,6 +72,11 @@ public class ClubGrid {
 	
 	public GridBlock enterClub(PeopleLocation myLocation) throws InterruptedException  {
 		counter.personArrived(); //add to counter of people waiting 
+
+		synchronized (entrance) {
+			
+		}
+
 		entrance.get(myLocation.getID());
 		counter.personEntered(); //add to counter
 		myLocation.setLocation(entrance);
