@@ -76,7 +76,7 @@ public class ClubGrid {
 		synchronized (entrance) {
 			while (entrance.occupied() || counter.overCapacity()) {
 				entrance.wait();
-				// wait until notify.all
+				// wait until notify.all and entrance not notified
 			}
 		}
 		
